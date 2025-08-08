@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "842460995990",
+    "project_id": "apkaiapp",
+    "storage_bucket": "apkaiapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842460995990:android:fca8a2bdd8753763573db7",
+        "android_client_info": {
+          "package_name": "com.example.apk_ai_call"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAb4rGnVYLqbJRxmoYlzsRV60JFa469QY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
