@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="apk_ai_call"
+        android:label="Balo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

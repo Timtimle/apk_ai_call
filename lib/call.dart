@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 
 class _CallPageState extends State<CallPage> {
   final _localRenderer = RTCVideoRenderer();
@@ -46,11 +48,78 @@ Future<void> initLocalStream() async {
     _localRenderer.srcObject = _localStream;
 }
 
+Future<List<dynamic>> fetchIceServers() async {
+  final String username = 'Timtimle';
+  final String secret = '97591676-776e-11f0-9284-52194d8d5519';
+  final String channel = 'BaoSignal';
+  
+  final url = Uri.parse('https://global.xirsys.net/_turn/$channel');
+  final String basicAuth = base64Encode(utf8.encode('$username:$secret'));
+
+  final response = await http.put (
+    url,
+    headers: {
+      'Authorization': 'Basic $basicAuth',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({"format": "urls"}),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    if (data is Map && data.containsKey('v')) {
+      final v = data['v'];
+      if (v is Map && v.containsKey('iceServers')) {
+        final iceServersRaw = v['iceServers'];
+        if (iceServersRaw is Map) {
+          print('Single ICE server as Map: $iceServersRaw');
+          return [Map<String, dynamic>.from(iceServersRaw)];
+        } else if (iceServersRaw is List) {
+          List<Map<String, dynamic>> iceServers = [];
+
+          for (var server in iceServersRaw) {
+            if (server is String) continue;
+
+            if(server is Map && server.containsKey('urls')) {
+              var urls = server['urls'];
+              if (urls is String) {
+                iceServers.add({'urls' : [urls]});
+              } else if (urls is List) {
+                iceServers.add({'urls': List<String>.from(urls)});
+              } else {
+                iceServers.add(Map<String, dynamic>.from(server));
+              }
+            }
+          }
+          print('Parsed Ice Servers : $iceServers');
+          return iceServers;
+        } else {
+          throw Exception('iceServers unexpected type');
+        }
+      } else {
+        throw Exception('Response does not contain iceServers');
+      }
+    } else {
+      throw Exception('Response does not contain key "v"');
+    }
+  } else {
+    throw Exception('Failed to load ICE Servers with status ${response.statusCode}');
+  }
+}
+
 Future<void> initPeerConnection() async {
     if(_peerConnection != null) {
       await _peerConnection!.close();
       _peerConnection = null;
     }
+
+    print('Fetching ICE Servers...');
+    List<dynamic> iceServers = await fetchIceServers();
+    print('Ice Servers: $iceServers');
+
+    final Map<String, dynamic> configuration = {
+      'iceServers': iceServers,
+    };
 
     print('Before createPeerConnection');
     _peerConnection = await createPeerConnection(configuration);
@@ -263,7 +332,7 @@ Future<void> joinRoom(String roomId) async {
                           Expanded (
                             child: ElevatedButton.icon (
                               icon: const Icon(Icons.add),
-                              label: Text('Create Roommzxczczczxczxc'),
+                              label: Text('Create 123123123'),
                               onPressed: () async {
                                 await createRoom();
                                 if (roomId != null) {
